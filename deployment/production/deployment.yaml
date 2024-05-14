@@ -1,0 +1,58 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: wg-landing-page-app
+  labels:
+    app.name: wg-landing-page-app
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.name: wg-landing-page-app
+  template:
+    metadata:
+      labels:
+        app.name: wg-landing-page-app
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: kops.k8s.io/instancegroup
+                    operator: In
+                    values:
+                      - nodes-ap-southeast-1a
+      containers:
+        - name: wg-landing-page-app
+          image: 717581138308.dkr.ecr.ap-southeast-1.amazonaws.com/wg-landing-page-app:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+          resources: 
+            requests:
+              cpu: 50m
+              memory: 128Mi
+            limits:
+              cpu: 100m
+              memory: 256Mi
+          livenessProbe:
+            failureThreshold: 5
+            httpGet:
+              path: /
+              port: 8080
+            initialDelaySeconds: 30
+            periodSeconds: 60
+            timeoutSeconds: 120
+          lifecycle:
+            preStop:
+              exec:
+                command: ["sleep", "15"]
+      imagePullSecrets:
+        - name: ecr-registry
+      restartPolicy: Always
+
+

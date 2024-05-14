@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: wg-landing-page-app
+  labels:
+    app.project: wg-landing-page
+    app.name: wg-landing-page-app
+    app.env: production
+spec:
+  type: NodePort
+  ports:
+  - name: app-port
+    port: 8080
+    targetPort: 8080
+    protocol: TCP
+  selector:
+    app.name: wg-landing-page-app
+  
